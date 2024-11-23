@@ -1,0 +1,175 @@
+---
+title: 'STATS 506 Problem Set #6'
+author: 'Haiming Li'
+format: 
+  html:
+    embed-resources: true
+    toc: true
+    smooth-scroll: true
+  pdf: default
+---
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE}
+library(DBI)
+library(parallel)
+library(future)
+library(dplyr)
+```
+
+## Stratified Bootstrap
+```{r, warning=FALSE}
+# get data
+lahman <- dbConnect(RSQLite::SQLite(), "./lahman_1871-2022.sqlite")
+data <- na.omit(dbGetQuery(lahman, "SELECT teamID, PO, A, InnOuts FROM Fielding"))
+dbDisconnect(lahman)
+```
+
+a. Here's the implementation without parallel processing.
+```{r naive}
+system.time({
+# create a list that contain individual team data
+teams <- unique(data$teamID)
+teams_data <- vector('list', length = length(unique(data$teamID)))
+for (i in 1:length(teams)) {
+  teams_data[[i]] <- data[data$teamID == teams[i],]
+}
+
+# creat bootstrap sample
+n_iter <- 1000
+samples_naive <- vector('list', n_iter)
+
+for (i in 1:n_iter) {
+  sample_i <- NULL
+  # helper function to sample each team
+  sample_team <- function(team_data) {
+    team_sample <- team_data[sample(1:nrow(team_data), 
+                                    size = nrow(team_data), replace = TRUE), ]
+  }
+  samples_naive[[i]] <- Reduce(rbind, lapply(teams_data, sample_team))
+}})
+```
+
+Here's the implementation with parallel package
+```{r parallel}
+system.time({
+# team data
+teams <- unique(data$teamID)
+teams_data <- split(data, data$teamID)
+
+n_iter <- 1000
+# helper function for one bootstrap sample
+bootstrap_sample <- function(iter) {
+    sample_team <- function(team_data) {
+      team_data[sample(1:nrow(team_data), size = nrow(team_data), replace = TRUE), ]
+    }
+    do.call(rbind, lapply(teams_data, sample_team))
+}
+
+samples_paralell <- mclapply(1:n_iter, bootstrap_sample, mc.cores = 6)
+})
+```
+
+Here's the implementation with future package
+```{r future}
+system.time({
+  # Create a list containing individual team data
+  teams <- unique(data$teamID)
+  teams_data <- split(data, data$teamID)
+  
+  plan(multisession, workers = 6)
+
+  # helper function for one bootstrap sample
+  n_iter <- 1000
+  bootstrap_sample <- function(iter) {
+    sample_team <- function(team_data) {
+      team_data[sample(1:nrow(team_data), size = nrow(team_data), replace = TRUE), ]
+    }
+    do.call(rbind, lapply(teams_data, sample_team))
+  }
+  future_list <- lapply(1:n_iter, function(x) future(bootstrap_sample(), seed = NULL))
+  samples_future <- lapply(future_list, value)
+})
+```
+
+b. Here's the estimation of RF and its standard error for each method.
+```{r}
+# calculate RF for a single sample
+RF <- function(sample) {
+  sample$RF <- 3 * (sample$PO + sample$A) / sample$InnOuts
+  aggregate(RF ~ teamID, data = sample, FUN = mean)
+}
+
+# calculate RF and SE for a list of bootstrap samples
+RF_metrics <- function(bootstrap_samples) {
+  team_RF_samples <- mclapply(bootstrap_samples, RF, mc.cores = 6)
+  
+  # Combine RF results from all bootstrap samples into a list by teamID
+  team_RF_list <- list()
+  for (team_RF in team_RF_samples) {
+    if (is.null(team_RF_list[[1]])) {
+      team_RF_list <- split(team_RF$RF, team_RF$teamID)
+    } else {
+      for (team in names(team_RF_list)) {
+        team_RF_list[[team]] <- c(team_RF_list[[team]], team_RF$RF[team_RF$teamID == team])
+      }
+    }
+  }
+  
+  # Calculate the mean RF and standard error (SE) for each team
+  team_RF_stats <- do.call(rbind, lapply(names(team_RF_list), function(team) {
+    RF_values <- team_RF_list[[team]]
+    data.frame(teamID = team,
+               RF_mean = mean(RF_values),
+               RF_SE = sd(RF_values) / sqrt(length(RF_values)))
+  }))
+  
+  return(team_RF_stats)
+}
+```
+
+```{r, warning=FALSE}
+# helper function calculate RF for single sample
+RF <- function(sample) {
+  sample$RF <- 3 * (sample$PO + sample$A) / sample$InnOuts
+  res <- aggregate(RF ~ teamID, data = sample, FUN = mean)
+  res$RF[is.infinite(res$RF)] <- 0 # fix division by 0
+  return(res)
+}
+
+# calculate mean RF and SE for a list of samples
+calc_metrics <- function(samples) {
+  res <- mclapply(samples, RF, mc.cores = 6)
+  combined_df <- do.call(rbind, res)
+  result <- aggregate(RF ~ teamID, data = combined_df, 
+                        FUN = function(x) c(mean = mean(x), 
+                                            se = sd(x) / sqrt(length(x))))  
+  return(result)
+}
+
+# calculate metric for each method and combine them
+res_naive <- calc_metrics(samples_naive)
+res_parallel <- calc_metrics(samples_parallel)
+res_future <- calc_metrics(samples_future)
+
+# show results
+res_df <- res_naive %>% 
+  inner_join(res_parallel, by = 'teamID') %>%
+  inner_join(res_future, by = 'teamID') %>%
+  mutate(
+    RF_naive = RF.x[, 1],
+    SE_naive = RF.x[, 2],
+    RF_parallel = RF.y[, 1],
+    SE_parallel = RF.y[, 2],
+    RF_future = RF[, 1],
+    SE_future = RF[, 2]
+  ) %>%
+  select(teamID, RF_naive, SE_naive, RF_parallel,
+         SE_parallel, RF_future, SE_future) %>%
+  print(n=140)
+```
+c. As shown by the timing in part a, the naive approach is of course the slowest as it does not have any parallel processing. The implementation with future package seems to be faster than the implementation with parallel package. It might due to the fact that future package utilize concurrent programming. For this particular task, being able to dynamically schedule resources would improve the performance.
+
+
+
+
+
