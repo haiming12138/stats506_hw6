@@ -9,11 +9,11 @@ format:
   pdf: default
 ---
 
-```{r, warning=FALSE, message=FALSE, echo=FALSE}
+```{r libs, warning=FALSE, message=FALSE, echo=FALSE}
 library(DBI)
 library(parallel)
 library(future)
-library(dplyr)
+library(tidyverse)
 ```
 
 ## Stratified Bootstrap
@@ -50,7 +50,7 @@ for (i in 1:n_iter) {
 ```
 
 Here's the implementation with parallel package
-```{r parallel}
+```{r parallel, warning=FALSE}
 system.time({
 # team data
 teams <- unique(data$teamID)
@@ -65,12 +65,12 @@ bootstrap_sample <- function(iter) {
     do.call(rbind, lapply(teams_data, sample_team))
 }
 
-samples_paralell <- mclapply(1:n_iter, bootstrap_sample, mc.cores = 6)
+samples_parallel <- mclapply(1:n_iter, bootstrap_sample, mc.cores = 6)
 })
 ```
 
 Here's the implementation with future package
-```{r future}
+```{r future, warning=FALSE}
 system.time({
   # Create a list containing individual team data
   teams <- unique(data$teamID)
@@ -92,42 +92,7 @@ system.time({
 ```
 
 b. Here's the estimation of RF and its standard error for each method.
-```{r}
-# calculate RF for a single sample
-RF <- function(sample) {
-  sample$RF <- 3 * (sample$PO + sample$A) / sample$InnOuts
-  aggregate(RF ~ teamID, data = sample, FUN = mean)
-}
-
-# calculate RF and SE for a list of bootstrap samples
-RF_metrics <- function(bootstrap_samples) {
-  team_RF_samples <- mclapply(bootstrap_samples, RF, mc.cores = 6)
-  
-  # Combine RF results from all bootstrap samples into a list by teamID
-  team_RF_list <- list()
-  for (team_RF in team_RF_samples) {
-    if (is.null(team_RF_list[[1]])) {
-      team_RF_list <- split(team_RF$RF, team_RF$teamID)
-    } else {
-      for (team in names(team_RF_list)) {
-        team_RF_list[[team]] <- c(team_RF_list[[team]], team_RF$RF[team_RF$teamID == team])
-      }
-    }
-  }
-  
-  # Calculate the mean RF and standard error (SE) for each team
-  team_RF_stats <- do.call(rbind, lapply(names(team_RF_list), function(team) {
-    RF_values <- team_RF_list[[team]]
-    data.frame(teamID = team,
-               RF_mean = mean(RF_values),
-               RF_SE = sd(RF_values) / sqrt(length(RF_values)))
-  }))
-  
-  return(team_RF_stats)
-}
-```
-
-```{r, warning=FALSE}
+```{r stats, warning=FALSE}
 # helper function calculate RF for single sample
 RF <- function(sample) {
   sample$RF <- 3 * (sample$PO + sample$A) / sample$InnOuts
@@ -152,7 +117,7 @@ res_parallel <- calc_metrics(samples_parallel)
 res_future <- calc_metrics(samples_future)
 
 # show results
-res_df <- res_naive %>% 
+res_naive %>% 
   inner_join(res_parallel, by = 'teamID') %>%
   inner_join(res_future, by = 'teamID') %>%
   mutate(
@@ -163,13 +128,15 @@ res_df <- res_naive %>%
     RF_future = RF[, 1],
     SE_future = RF[, 2]
   ) %>%
+  mutate(across(where(is.numeric), ~ round(.x, 4))) %>%
   select(teamID, RF_naive, SE_naive, RF_parallel,
-         SE_parallel, RF_future, SE_future) %>%
-  print(n=140)
+         SE_parallel, RF_future, SE_future)
 ```
+
+
 c. As shown by the timing in part a, the naive approach is of course the slowest as it does not have any parallel processing. The implementation with future package seems to be faster than the implementation with parallel package. It might due to the fact that future package utilize concurrent programming. For this particular task, being able to dynamically schedule resources would improve the performance.
 
-
-
+## Link to GitHub
+* [GitHub Repo of this Pset](https://github.com/haiming12138/stats506_hw6.git)
 
 
