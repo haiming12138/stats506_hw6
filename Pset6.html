@@ -3069,19 +3069,10 @@ vertical-align: -.125em;
 
 </head>
 
-<body>
+<body class="fullcontent">
 
 <div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
-<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-  <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title">Table of contents</h2>
-   
-  <ul>
-  <li><a href="#stratified-bootstrap" id="toc-stratified-bootstrap" class="nav-link active" data-scroll-target="#stratified-bootstrap">Stratified Bootstrap</a></li>
-  <li><a href="#link-to-github" id="toc-link-to-github" class="nav-link" data-scroll-target="#link-to-github">Link to GitHub</a></li>
-  </ul>
-<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="Pset6.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
-</div>
+
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
@@ -3144,7 +3135,7 @@ vertical-align: -.125em;
 <span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>}})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-584.554  23.449 608.533 </code></pre>
+589.113  35.039 626.831 </code></pre>
 </div>
 </div>
 <p>Here’s the implementation with parallel package</p>
@@ -3167,7 +3158,7 @@ vertical-align: -.125em;
 <span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
- 32.377   7.866 262.199 </code></pre>
+142.604  55.056 219.457 </code></pre>
 </div>
 </div>
 <p>Here’s the implementation with future package</p>
@@ -3192,7 +3183,7 @@ vertical-align: -.125em;
 <span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
- 75.628  12.369 156.466 </code></pre>
+ 74.774  11.765 152.937 </code></pre>
 </div>
 </div>
 <ol start="2" type="a">
@@ -3224,161 +3215,64 @@ vertical-align: -.125em;
 <span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a><span class="co"># show results</span></span>
 <span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>res_naive <span class="sc">%&gt;%</span> </span>
-<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(res_parallel, <span class="at">by =</span> <span class="st">&#39;teamID&#39;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(res_future, <span class="at">by =</span> <span class="st">&#39;teamID&#39;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">RF_naive =</span> RF.x[, <span class="dv">1</span>],</span>
-<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">SE_naive =</span> RF.x[, <span class="dv">2</span>],</span>
-<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">RF_parallel =</span> RF.y[, <span class="dv">1</span>],</span>
-<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">SE_parallel =</span> RF.y[, <span class="dv">2</span>],</span>
-<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">RF_future =</span> RF[, <span class="dv">1</span>],</span>
-<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">SE_future =</span> RF[, <span class="dv">2</span>]</span>
-<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">where</span>(is.numeric), <span class="sc">~</span> <span class="fu">round</span>(.x, <span class="dv">4</span>))) <span class="sc">%&gt;%</span></span>
-<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(teamID, RF_naive, SE_naive, RF_parallel,</span>
-<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>         SE_parallel, RF_future, SE_future)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">RF_naive =</span> RF[, <span class="dv">1</span>],</span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">SE_naive =</span> RF[, <span class="dv">2</span>]</span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(teamID, RF_naive, SE_naive) <span class="sc">%&gt;%</span></span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(<span class="at">order_by =</span> RF_naive, <span class="at">n=</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>    teamID RF_naive SE_naive RF_parallel SE_parallel RF_future SE_future
-1      ALT   0.3887   0.0016      0.3876      0.0016    0.3844    0.0015
-2      ANA   0.4147   0.0005      0.4153      0.0005    0.4155    0.0005
-3      ARI   0.3662   0.0003      0.3659      0.0003    0.3657    0.0003
-4      ATL   0.0486   0.0041      0.0539      0.0042    0.0597    0.0044
-5      BAL   0.1502   0.0060      0.1406      0.0060    0.1479    0.0060
-6      BFN   0.4497   0.0007      0.4511      0.0006    0.4508    0.0006
-7      BFP   0.4619   0.0017      0.4621      0.0017    0.4627    0.0016
-8      BL1   0.4428   0.0009      0.4407      0.0009    0.4420    0.0009
-9      BL2   0.4010   0.0005      0.4013      0.0005    0.4009    0.0005
-10     BL3   0.4448   0.0013      0.4434      0.0012    0.4453    0.0013
-11     BL4   0.4262   0.0018      0.4290      0.0018    0.4281    0.0018
-12     BLA   0.4948   0.0010      0.4957      0.0010    0.4949    0.0010
-13     BLN   0.4483   0.0006      0.4501      0.0006    0.4506    0.0006
-14     BLU   0.3842   0.0013      0.3851      0.0014    0.3815    0.0013
-15     BOS   0.4018   0.0002      0.4020      0.0002    0.4024    0.0002
-16     BR1   0.4387   0.0014      0.4385      0.0014    0.4376    0.0013
-17     BR2   0.3993   0.0008      0.3999      0.0008    0.3994    0.0008
-18     BR3   0.4487   0.0007      0.4473      0.0007    0.4493    0.0007
-19     BR4   0.4371   0.0015      0.4401      0.0014    0.4384    0.0014
-20     BRO   0.4423   0.0003      0.4423      0.0003    0.4424    0.0003
-21     BRP   0.4348   0.0018      0.4305      0.0017    0.4336    0.0017
-22     BS1   0.4530   0.0010      0.4522      0.0010    0.4531    0.0010
-23     BS2   0.4337   0.0015      0.4347      0.0015    0.4338    0.0015
-24     BSN   0.4564   0.0003      0.4562      0.0003    0.4562    0.0003
-25     BSP   0.4297   0.0016      0.4311      0.0015    0.4308    0.0015
-26     BSU   0.4213   0.0017      0.4215      0.0018    0.4180    0.0018
-27     CAL   0.4163   0.0003      0.4160      0.0003    0.4167    0.0003
-28     CH1   0.4301   0.0019      0.4292      0.0019    0.4306    0.0020
-29     CH2   0.4390   0.0011      0.4382      0.0012    0.4386    0.0012
-30     CHA   0.0012   0.0007      0.0012      0.0007    0.0000    0.0000
-31     CHN   0.4151   0.0001      0.4150      0.0002    0.4150    0.0001
-32     CHP   0.4752   0.0016      0.4742      0.0016    0.4787    0.0015
-33     CHU   0.3431   0.0012      0.3424      0.0012    0.3440    0.0012
-34     CIN   0.1541   0.0062      0.1481      0.0062    0.1501    0.0062
-35     CL1   0.3835   0.0012      0.3857      0.0013    0.3854    0.0013
-36     CL2   0.4356   0.0007      0.4346      0.0007    0.4358    0.0008
-37     CL3   0.4598   0.0009      0.4586      0.0009    0.4586    0.0009
-38     CL4   0.1566   0.0067      0.1725      0.0069    0.1604    0.0068
-39     CL5   0.4409   0.0014      0.4402      0.0014    0.4408    0.0014
-40     CL6   0.4110   0.0009      0.4110      0.0009    0.4101    0.0009
-41     CLE   0.1418   0.0061      0.1586      0.0062    0.1461    0.0061
-42     CLP   0.4070   0.0014      0.4048      0.0014    0.4056    0.0014
-43     CN1   0.4405   0.0007      0.4412      0.0008    0.4398    0.0007
-44     CN2   0.4399   0.0006      0.4395      0.0006    0.4383    0.0007
-45     CN3   0.4364   0.0016      0.4363      0.0016    0.4393    0.0016
-46     CNU   0.4437   0.0016      0.4435      0.0016    0.4424    0.0016
-47     COL   0.3892   0.0003      0.3895      0.0003    0.3899    0.0002
-48     DET   0.1453   0.0062      0.1419      0.0061    0.1388    0.0061
-49     DTN   0.4224   0.0005      0.4211      0.0006    0.4218    0.0005
-50     ELI   0.5292   0.0020      0.5273      0.0020    0.5213    0.0019
-51     FLO   0.3702   0.0003      0.3707      0.0003    0.3708    0.0003
-52     FW1   0.4396   0.0017      0.4433      0.0016    0.4414    0.0016
-53     HAR   0.4180   0.0015      0.4186      0.0015    0.4181    0.0014
-54     HOU   0.4013   0.0002      0.4013      0.0002    0.4014    0.0002
-55     HR1   0.3836   0.0012      0.3846      0.0012    0.3843    0.0012
-56     IN1   0.4089   0.0020      0.4083      0.0021    0.4100    0.0021
-57     IN2   0.4630   0.0014      0.4614      0.0015    0.4635    0.0015
-58     IN3   0.4189   0.0009      0.4192      0.0010    0.4206    0.0010
-59     KC1   0.4073   0.0004      0.4078      0.0004    0.4073    0.0004
-60     KC2   0.3797   0.0008      0.3798      0.0008    0.3820    0.0008
-61     KCA   0.3910   0.0002      0.3911      0.0002    0.3908    0.0002
-62     KCN   0.4388   0.0016      0.4390      0.0016    0.4384    0.0016
-63     KCU   0.4181   0.0009      0.4179      0.0010    0.4177    0.0010
-64     KEO   0.5087   0.0035      0.5089      0.0034    0.5118    0.0035
-65     LAA   0.3758   0.0003      0.3761      0.0003    0.3765    0.0003
-66     LAN   0.1408   0.0060      0.1436      0.0060    0.1459    0.0060
-67     LS1   0.5303   0.0018      0.5291      0.0018    0.5300    0.0018
-68     LS2   0.1729   0.0072      0.1675      0.0072    0.1765    0.0072
-69     LS3   0.4891   0.0005      0.4888      0.0005    0.4897    0.0005
-70     MIA   0.3627   0.0004      0.3643      0.0004    0.3640    0.0004
-71     MID   0.4569   0.0019      0.4562      0.0019    0.4577    0.0020
-72     MIL   0.3595   0.0003      0.3590      0.0003    0.3592    0.0003
-73     MIN   0.3913   0.0002      0.3915      0.0002    0.3915    0.0002
-74     ML1   0.4412   0.0005      0.4412      0.0005    0.4416    0.0005
-75     ML2   0.4402   0.0018      0.4397      0.0017    0.4395    0.0018
-76     ML3   0.4677   0.0021      0.4663      0.0021    0.4667    0.0019
-77     ML4   0.0556   0.0045      0.0508      0.0043    0.0513    0.0043
-78     MLA   0.4159   0.0012      0.4193      0.0012    0.4201    0.0012
-79     MLU   0.5139   0.0041      0.5154      0.0043    0.5055    0.0041
-80     MON   0.0591   0.0046      0.0611      0.0047    0.0651    0.0048
-81     NH1   0.4428   0.0016      0.4425      0.0015    0.4418    0.0016
-82     NY1   0.4399   0.0003      0.4397      0.0003    0.4401    0.0003
-83     NY2   0.3915   0.0007      0.3909      0.0007    0.3908    0.0007
-84     NY3   0.3787   0.0013      0.3813      0.0012    0.3800    0.0013
-85     NY4   0.1622   0.0067      0.1620      0.0068    0.1669    0.0068
-86     NYA   0.4040   0.0002      0.4041      0.0002    0.4042    0.0002
-87     NYN   0.4025   0.0002      0.4023      0.0002    0.4024    0.0002
-88     NYP   0.4245   0.0016      0.4176      0.0015    0.4221    0.0015
-89     OAK   0.0137   0.0023      0.0209      0.0028    0.0177    0.0026
-90     PH1   0.4540   0.0009      0.4525      0.0009    0.4532    0.0009
-91     PH2   0.4648   0.0010      0.4615      0.0010    0.4645    0.0011
-92     PH3   0.4700   0.0028      0.4694      0.0028    0.4706    0.0027
-93     PH4   0.4133   0.0005      0.4123      0.0005    0.4119    0.0005
-94     PHA   0.1789   0.0072      0.1601      0.0070    0.1614    0.0070
-95     PHI   0.4009   0.0001      0.4011      0.0001    0.4010    0.0001
-96     PHN   0.4517   0.0013      0.4497      0.0013    0.4514    0.0013
-97     PHP   0.4395   0.0018      0.4384      0.0018    0.4400    0.0018
-98     PHU   0.4831   0.0014      0.4825      0.0014    0.4805    0.0014
-99     PIT   0.4111   0.0002      0.4114      0.0002    0.4110    0.0002
-100    PRO   0.4653   0.0007      0.4658      0.0007    0.4659    0.0007
-101    PT1   0.4442   0.0007      0.4428      0.0007    0.4421    0.0007
-102    PTP   0.4480   0.0016      0.4485      0.0016    0.4483    0.0017
-103    RC1   0.5732   0.0026      0.5724      0.0026    0.5735    0.0025
-104    RC2   0.4752   0.0014      0.4744      0.0014    0.4744    0.0014
-105    RIC   0.5036   0.0022      0.5123      0.0022    0.5060    0.0021
-106    SDN   0.3938   0.0002      0.3939      0.0002    0.3940    0.0002
-107    SE1   0.4160   0.0014      0.4158      0.0014    0.4181    0.0014
-108    SEA   0.1495   0.0060      0.1337      0.0058    0.1548    0.0060
-109    SFN   0.4013   0.0002      0.4017      0.0002    0.4018    0.0002
-110    SL1   0.3365   0.0020      0.3384      0.0020    0.3413    0.0020
-111    SL2   0.3947   0.0019      0.3921      0.0018    0.3928    0.0018
-112    SL3   0.4004   0.0013      0.3987      0.0013    0.3983    0.0013
-113    SL4   0.4361   0.0005      0.4371      0.0005    0.4356    0.0005
-114    SL5   0.3759   0.0009      0.3757      0.0009    0.3763    0.0009
-115    SLA   0.4657   0.0005      0.4654      0.0005    0.4663    0.0005
-116    SLN   0.1504   0.0064      0.1533      0.0064    0.1540    0.0064
-117    SLU   0.3932   0.0012      0.3917      0.0012    0.3930    0.0013
-118    SPU   0.4642   0.0029      0.4650      0.0028    0.4629    0.0027
-119    SR1   0.4653   0.0013      0.4643      0.0013    0.4648    0.0012
-120    SR2   0.4144   0.0013      0.4149      0.0013    0.4132    0.0012
-121    TBA   0.3566   0.0003      0.3561      0.0003    0.3565    0.0003
-122    TEX   0.1420   0.0059      0.1460      0.0059    0.1469    0.0059
-123    TL1   0.4579   0.0015      0.4569      0.0015    0.4583    0.0015
-124    TL2   0.4197   0.0020      0.4228      0.0020    0.4199    0.0020
-125    TOR   0.3751   0.0002      0.3751      0.0002    0.3754    0.0002
-126    TRN   0.4813   0.0009      0.4810      0.0009    0.4805    0.0009
-127    TRO   0.4711   0.0014      0.4750      0.0014    0.4734    0.0013
-128    WAS   0.3744   0.0003      0.3738      0.0002    0.3738    0.0003
-129    WIL   0.3814   0.0019      0.3795      0.0020    0.3795    0.0020
-130    WOR   0.4251   0.0012      0.4225      0.0011    0.4248    0.0011
-131    WS1   0.4637   0.0004      0.4630      0.0004    0.4639    0.0004
-132    WS2   0.3983   0.0004      0.3987      0.0004    0.3987    0.0004
-133    WS3   0.4082   0.0015      0.4106      0.0014    0.4104    0.0014
-134    WS4   0.4628   0.0019      0.4654      0.0019    0.4658    0.0018
-135    WS5   0.4081   0.0016      0.4097      0.0016    0.4093    0.0016
-136    WS6   0.4164   0.0019      0.4143      0.0018    0.4172    0.0018
-137    WS7   0.4506   0.0015      0.4484      0.0015    0.4508    0.0015
-138    WS8   0.4467   0.0007      0.4450      0.0007    0.4472    0.0007
-139    WS9   0.4398   0.0012      0.4393      0.0012    0.4383    0.0012
-140    WSU   0.4005   0.0011      0.4003      0.0011    0.4008    0.0011</code></pre>
+<pre><code>   teamID  RF_naive     SE_naive
+1     RC1 0.5713214 0.0026427006
+2     LS1 0.5304250 0.0017144816
+3     ELI 0.5238212 0.0019919864
+4     MLU 0.5111251 0.0041751832
+5     KEO 0.5076840 0.0034493666
+6     RIC 0.5072293 0.0020918948
+7     BLA 0.4946546 0.0009724917
+8     LS3 0.4897758 0.0004887815
+9     PHU 0.4816455 0.0015261281
+10    TRN 0.4812419 0.0009658117</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>res_parallel <span class="sc">%&gt;%</span> </span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">RF_parallel =</span> RF[, <span class="dv">1</span>],</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">SE_parallel =</span> RF[, <span class="dv">2</span>]</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(teamID, RF_parallel, SE_parallel) <span class="sc">%&gt;%</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(<span class="at">order_by =</span> RF_parallel, <span class="at">n=</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   teamID RF_parallel  SE_parallel
+1     RC1   0.5688537 0.0025792304
+2     LS1   0.5298568 0.0018427777
+3     ELI   0.5255072 0.0019656658
+4     KEO   0.5110604 0.0034637192
+5     MLU   0.5096358 0.0041232433
+6     RIC   0.5084120 0.0021283880
+7     BLA   0.4945643 0.0010018603
+8     LS3   0.4890282 0.0004944274
+9     PHU   0.4802849 0.0014897755
+10    TRN   0.4802391 0.0009638190</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>res_future <span class="sc">%&gt;%</span> </span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">RF_future =</span> RF[, <span class="dv">1</span>],</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">SE_future =</span> RF[, <span class="dv">2</span>]</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(teamID, RF_future, SE_future) <span class="sc">%&gt;%</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(<span class="at">order_by =</span> RF_future, <span class="at">n=</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   teamID RF_future    SE_future
+1     RC1 0.5748867 0.0026323147
+2     ELI 0.5266634 0.0019660762
+3     LS1 0.5263293 0.0017555593
+4     KEO 0.5114320 0.0033613589
+5     RIC 0.5080724 0.0022001669
+6     MLU 0.5035121 0.0039488682
+7     BLA 0.4953751 0.0010167401
+8     LS3 0.4891600 0.0005114180
+9     TRN 0.4824527 0.0009766752
+10    PHU 0.4797698 0.0014734832</code></pre>
 </div>
 </div>
 <ol start="3" type="a">

@@ -4,9 +4,7 @@ author: 'Haiming Li'
 format: 
   html:
     embed-resources: true
-    toc: true
     smooth-scroll: true
-  pdf: default
 ---
 
 ```{r libs, warning=FALSE, message=FALSE, echo=FALSE}
@@ -118,19 +116,28 @@ res_future <- calc_metrics(samples_future)
 
 # show results
 res_naive %>% 
-  inner_join(res_parallel, by = 'teamID') %>%
-  inner_join(res_future, by = 'teamID') %>%
   mutate(
-    RF_naive = RF.x[, 1],
-    SE_naive = RF.x[, 2],
-    RF_parallel = RF.y[, 1],
-    SE_parallel = RF.y[, 2],
+    RF_naive = RF[, 1],
+    SE_naive = RF[, 2]
+  ) %>%
+  select(teamID, RF_naive, SE_naive) %>%
+  slice_max(order_by = RF_naive, n=10)
+
+res_parallel %>% 
+  mutate(
+    RF_parallel = RF[, 1],
+    SE_parallel = RF[, 2]
+  ) %>%
+  select(teamID, RF_parallel, SE_parallel) %>%
+  slice_max(order_by = RF_parallel, n=10)
+
+res_future %>% 
+  mutate(
     RF_future = RF[, 1],
     SE_future = RF[, 2]
   ) %>%
-  mutate(across(where(is.numeric), ~ round(.x, 4))) %>%
-  select(teamID, RF_naive, SE_naive, RF_parallel,
-         SE_parallel, RF_future, SE_future)
+  select(teamID, RF_future, SE_future) %>%
+  slice_max(order_by = RF_future, n=10)
 ```
 
 
